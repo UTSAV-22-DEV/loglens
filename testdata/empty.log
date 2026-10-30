@@ -1,0 +1,3 @@
+New-Item -ItemType Directory -Force testdata
+Set-Content testdata/sample.log "INFO server started","WARN disk usage high","ERROR request failed"
+Set-Content testdata/empty.log -Value ""
