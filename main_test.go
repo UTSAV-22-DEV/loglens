@@ -80,3 +80,44 @@ func TestCountLinesLongLine(t *testing.T) {
 		t.Errorf("countLines() = %d, want %d", got, 1)
 	}
 }
+func TestCountLinesLargeFile(t *testing.T) {
+	const numberOfLines = 100000
+	content := strings.Repeat(
+		"INFO application started\n",
+		numberOfLines,
+	)
+	path := filepath.Join(t.TempDir(), "large.log")
+	err := os.WriteFile(path, []byte(content), 0600)
+	if err != nil {
+		t.Fatalf("creating large file: %v", err)
+	}
+	got, err := countLines(path)
+	if err != nil {
+		t.Fatalf("countLines() returned error: %v", err)
+	}
+	if got != numberOfLines {
+		t.Errorf("countLines() = %d, want %d", got, numberOfLines)
+	}
+}
+
+func BenchmarkCountLines(b *testing.B) {
+	const numberOfLines = 100000
+	content := strings.Repeat(
+		"INFO application started\n",
+		numberOfLines,
+	)
+	path := filepath.Join(b.TempDir(), "benchmark.log")
+	err := os.WriteFile(path, []byte(content), 0600)
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.SetBytes(int64(len(content)))
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := countLines(path)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
