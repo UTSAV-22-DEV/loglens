@@ -13,6 +13,7 @@ func countLines(path string) (int, error) {
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
+	scanner.Buffer(make([]byte, 0, 64*1024), 10*1024*1024) // 10MB max line size
 	count := 0
 	for scanner.Scan() {
 		count++

@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -62,5 +63,20 @@ func TestCountLinesMissingFile(t *testing.T) {
 	_, err := countLines(path)
 	if err == nil {
 		t.Fatal("countLines() expected an error for a missing file")
+	}
+}
+func TestCountLinesLongLine(t *testing.T) {
+	content := strings.Repeat("A", 70*1024)
+	path := filepath.Join(t.TempDir(), "long.log")
+	err := os.WriteFile(path, []byte(content), 0600)
+	if err != nil {
+		t.Fatalf("creating test file: %v", err)
+	}
+	got, err := countLines(path)
+	if err != nil {
+		t.Fatalf("countLines() returned error: %v", err)
+	}
+	if got != 1 {
+		t.Errorf("countLines() = %d, want %d", got, 1)
 	}
 }
